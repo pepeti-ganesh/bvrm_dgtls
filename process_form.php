@@ -18,13 +18,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Retrieve form data
     $name = htmlspecialchars($_POST['name']);
     $gst = htmlspecialchars($_POST['gst']);
-    $boards = (int) $_POST['boards'];
+    $boards = htmlspecialchars($_POST['boards']); // Fixed missing parenthesis
     $duration = (int) $_POST['duration'];
     $months = (int) $_POST['months'];
     $start_date = htmlspecialchars($_POST['start-date']);
     $end_date = htmlspecialchars($_POST['end-date']);
     $cycles = (int) $_POST['cycles'];
-
+    $total-output = (int) $_POST['total-output'];
     // Price calculation logic
     $pricePerBoard = 0;
     switch ($boards) {
@@ -78,12 +78,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ':start_date' => $start_date,
             ':end_date' => $end_date,
             ':cycles' => $cycles,
-            ':total_price' => $totalPrice
+            ':total_price' => $total-output
         ]);
 
-        // Display success message
-        echo "<h1>Form Submitted Successfully</h1>";
-        echo "<p>Data has been successfully inserted into the database.</p>";
+
     } catch (PDOException $e) {
         echo "<p>Error: " . $e->getMessage() . "</p>"; // Error message if insertion fails
     }

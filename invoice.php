@@ -57,6 +57,7 @@
                     <th>End Date</th>
                     <th>Cycles</th>
                     <th>Total Price (₹)</th>
+                    <th>Generate Invoice</th>
                 </tr>
             </thead>
             <tbody>
@@ -91,6 +92,9 @@
                             echo "<td>" . htmlspecialchars($row['end_date']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['cycles']) . "</td>";
                             echo "<td>₹" . htmlspecialchars($row['total_price']) . "</td>";
+                            
+                            echo "<td><button class='btn btn-primary' onclick='window.location.href=\"pl.php?id=" . htmlspecialchars($row['id']) . "\"'>Print</button></td>";
+
                             echo "</tr>";
                         }
                     } else {

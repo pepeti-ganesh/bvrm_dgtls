@@ -31,12 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Calculate the total price, considering both months and cycles
       let total = pricePerMonth * months;
 
-      // Adjust total based on cycles
-      if (cycles === 50) {
-        total *= 1; // No change for 50 cycles
-      } else if (cycles === 100) {
-        total *= 1.5; // Increase total by 50% for 100 cycles
-      }
+      
 
       totalOutput.textContent = `Total Money: ₹${total}`;
     } else {
@@ -67,6 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
   cyclesField.addEventListener("change", calculateTotal);
   startDateField.addEventListener("change", calculateEndDate);
 });
+  const form = document.getElementById('myForm');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault(); // Prevent form from actually submitting
+            alert('Form submitted successfully!');
+        });
 
   </script>
 	</head>
@@ -117,9 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 <label for="boards">Boards:</label>
                 <select id="boards" name="boards" class="form-control" required>
                   <option value="">Select boards</option>
-                  <option value="1">Combo</option>
-                  <option value="2">8/10 feet</option>
-                  <option value="3">10/16 feet</option>
+                  <option value="Combo">Combo</option>
+                  <option value="8/10 ASR Nagar">8/10 ASR Nagar</option>
+                  <option value="10/16 Bombay Sweets">10/16 Bombay Sweets</option>
                 </select>
               </div>
               <div class="form-group">
