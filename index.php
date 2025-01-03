@@ -5,6 +5,39 @@
 		
 	</head>
 	<body>
+
+	<?php
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "digital_boards";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Fetch monthly expenses
+$monthlyExpenses = [];
+$sql = "SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) AS total_amount
+        FROM expenses
+        GROUP BY month
+        ORDER BY month";
+
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $monthlyExpenses[$row['month']] = $row['total_amount'];
+    }
+}
+
+$conn->close();
+?>
+
 		<section class="body">
 
 			<!-- start: header -->
@@ -581,7 +614,12 @@
 												</div>
 											</div>
 										</div>
+
 									</table>
+									<div class="container mt-5">
+    <h3>Monthly Expense Overview</h3>
+    <canvas id="expenseChart"></canvas>
+</div>
 								</div>
 							</div>
 
@@ -595,6 +633,38 @@
 		</section>
 
 		<!-- Vendor -->
+
+
+
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const expenseChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode(array_keys($monthlyExpenses)); ?>,
+            datasets: [{
+                label: 'Monthly Expenses',
+                data: <?php echo json_encode(array_values($monthlyExpenses)); ?>,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
+
+
+
+
 		<script src="vendor/jquery/jquery.js"></script>
 		<script src="vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
 		<script src="vendor/popper/umd/popper.min.js"></script>

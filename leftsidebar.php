@@ -30,6 +30,12 @@
 						</a>                        
 					</li>
 					<li>
+						<a class="nav-link" href="expenses.php">
+							<i class="fas fa-balance-scale-left" aria-hidden="true"></i>
+							<span>Expenses</span>
+						</a>                        
+					</li>
+					<li>
 						<a class="nav-link" href="new_updates.php">
 							<i class="bx bx-bell" aria-hidden="true"></i>
 							<span>New Updates</span>
