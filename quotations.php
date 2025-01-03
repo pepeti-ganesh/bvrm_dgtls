@@ -1,204 +1,275 @@
+<?php
+// Database connection parameters
+$host = 'localhost';
+$dbname = 'digital_boards';
+$username = 'root';
+$password = '';
+
+// Create a PDO instance for MySQL
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
+
+// Handle form submission
+$submissionSuccess = false; // Flag to track successful submission
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $name = htmlspecialchars($_POST['name']);
+    $gst = htmlspecialchars($_POST['gst']);
+    $boards = htmlspecialchars($_POST['boards']);
+    $duration = (int)$_POST['duration'];
+    $months = (int)$_POST['months'];
+    $start_date = htmlspecialchars($_POST['start-date']);
+    $end_date = htmlspecialchars($_POST['end-date']);
+    $cycles = (int)$_POST['cycles'];
+    $totalPrice = (int)$_POST['total-price']; // Retrieve the total price from the form
+
+    // Insert data into database
+    $sql = "INSERT INTO adds (name, gst, boards, duration, months, start_date, end_date, cycles, total_price)
+            VALUES (:name, :gst, :boards, :duration, :months, :start_date, :end_date, :cycles, :total_price)";
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ':name' => $name,
+            ':gst' => $gst,
+            ':boards' => $boards,
+            ':duration' => $duration,
+            ':months' => $months,
+            ':start_date' => $start_date,
+            ':end_date' => $end_date,
+            ':cycles' => $cycles,
+            ':total_price' => $totalPrice // Use the total price from the form
+        ]);
+
+        $submissionSuccess = true; // Set the success flag if insertion is successful
+    } catch (PDOException $e) {
+        echo "<p>Error: " . $e->getMessage() . "</p>";
+    }
+
+    // Explicitly release resources
+    $stmt = null;
+}
+
+?>
+
 <!doctype html>
 <html class="modern fixed has-top-menu has-left-sidebar-half">
-	<head>
+<head>
     <?php include 'head.php'; ?>
-	<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("quotation-form");
-  const totalOutput = document.getElementById("total-output");
-  const durationField = document.getElementById("duration");
-  const monthsField = document.getElementById("months");
-  const cyclesField = document.getElementById("cycles");
-  const startDateField = document.getElementById("start-date");
-  const endDateField = document.getElementById("end-date");
+    <script>
+     document.addEventListener("DOMContentLoaded", () => {
+        // Check if the form was submitted successfully
+        <?php if ($submissionSuccess): ?>
+            alert("Quotation added successfully!");
+        <?php endif; ?>
 
-  // Calculate total money whenever duration, cycles, or months are changed
-  function calculateTotal() {
-    const duration = parseInt(durationField.value, 10);
-    const months = parseInt(monthsField.value, 10);
-    const cycles = parseInt(cyclesField.value, 10);
+        const form = document.getElementById("quotation-form");
+        const totalOutput = document.getElementById("total-output");
+        const durationField = document.getElementById("duration");
+        const monthsField = document.getElementById("months");
+        const cyclesField = document.getElementById("cycles");
+        const boardsField = document.getElementById("boards");
+        const startDateField = document.getElementById("start-date");
+        const endDateField = document.getElementById("end-date");
 
-    if (!isNaN(duration) && !isNaN(months) && !isNaN(cycles)) {
-      let pricePerMonth = 0;
-      if (duration === 20) {
-        pricePerMonth = 1000;
-      } else if (duration === 30) {
-        pricePerMonth = 1200;
-      } else if (duration === 50) {
-        pricePerMonth = 1500;
-      }
+        // Calculate total money
+        function calculateTotal() {
+    const duration = parseInt(monthsField.value, 10); // Duration in months (1, 3, or 6)
+    const boards = boardsField.value; // Selected board type
 
-      // Calculate the total price, considering both months and cycles
-      let total = pricePerMonth * months;
+    let total = 0;
 
-      
-
-      totalOutput.textContent = `Total Money: ₹${total}`;
-    } else {
-      totalOutput.textContent = "Total Money: ₹0";
+    // Pricing logic
+    if (boards === "Combo") {
+        if (duration === 1) total = 8000;
+        else if (duration === 3) total = 18000;
+        else if (duration === 6) total = 30000;
+    } else if (boards === "8/10 ASR Nagar") {
+        if (duration === 1) total = 3000;
+        else if (duration === 3) total = 7500;
+        else if (duration === 6) total = 12000;
+    } else if (boards === "10/16 Bombay Sweets") {
+        if (duration === 1) total = 5000;
+        else if (duration === 3) total = 13500;
+        else if (duration === 6) total = 24000;
     }
-  }
 
-  // Calculate end date based on start date and months
-  function calculateEndDate() {
-    const startDate = new Date(startDateField.value);
-    const months = parseInt(monthsField.value, 10);
-
-    if (!isNaN(startDate.getTime()) && !isNaN(months)) {
-      const endDate = new Date(startDate);
-      endDate.setMonth(endDate.getMonth() + months);
-      endDateField.value = endDate.toISOString().split('T')[0]; // Format as yyyy-mm-dd
+    // Display the total
+    if (total > 0) {
+        totalOutput.textContent = `Total Money: ₹${total}`;
+        document.getElementById("total-price").value = total; // Update hidden input
     } else {
-      endDateField.value = "";
+        totalOutput.textContent = "Invalid selection. Please check your inputs.";
+        document.getElementById("total-price").value = 0; // Reset hidden input
     }
-  }
 
-  // Event listeners for changes in the form fields
-  durationField.addEventListener("change", calculateTotal);
-  monthsField.addEventListener("change", () => {
-    calculateTotal();
-    calculateEndDate();
-  });
-  cyclesField.addEventListener("change", calculateTotal);
-  startDateField.addEventListener("change", calculateEndDate);
-});
-  const form = document.getElementById('myForm');
+    return total;
+}
 
-        form.addEventListener('submit', (event) => {
-            event.preventDefault(); // Prevent form from actually submitting
-            alert('Form submitted successfully!');
+
+
+        // Calculate end date
+        function calculateEndDate() {
+            const startDate = new Date(startDateField.value);
+            const months = parseInt(monthsField.value, 10);
+
+            if (!isNaN(startDate.getTime()) && !isNaN(months)) {
+                const endDate = new Date(startDate);
+                endDate.setMonth(endDate.getMonth() + months);
+                endDateField.value = endDate.toISOString().split('T')[0];
+            } else {
+                endDateField.value = "";
+            }
+        }
+
+        // Event listeners
+        durationField.addEventListener("change", calculateTotal);
+        monthsField.addEventListener("change", () => {
+            calculateTotal();
+            calculateEndDate();
         });
+        cyclesField.addEventListener("change", calculateTotal);
+        boardsField.addEventListener("change", calculateTotal);
+        startDateField.addEventListener("change", calculateEndDate);
+    });
+    </script>
+</head>
+<body>
+    <section class="body">
+        <?php include 'header.php'; ?>
+        <div class="inner-wrapper">
+            <?php include 'leftsidebar.php'; ?>
+            <section role="main" class="content-body content-body-modern">
+                <header class="page-header page-header-left-inline-breadcrumb">
+                    <h2 class="font-weight-bold text-6">Quotations</h2>
+                    <div class="right-wrapper">
+                        <ol class="breadcrumbs">
+                            <li><span>Home</span></li>
+                            <li><span>Quotations</span></li>
+                        </ol>
+                        <a class="sidebar-right-toggle" data-open="sidebar-right">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </div>
+                </header>
 
-  </script>
-	</head>
-	<body>
-		<section class="body">
+                <div class="row">
+                <div class="col-lg-6">
+    <form id="quotation-form" class="form-horizontal form-bordered" method="POST">
+        <section class="card">
+            
+            <div class="card-body">
+                <!-- Name -->
+                <div class="form-group row pb-3">
+                    <label for="name" class="col-sm-4 control-label text-sm-end pt-2">Name:</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                </div>
 
-			<!-- start: header -->
-		<?php include 'header.php'; ?>
-			<!-- end: header -->
+                <!-- GST -->
+                <div class="form-group row pb-3">
+                    <label for="gst" class="col-sm-4 control-label text-sm-end pt-2">GST:</label>
+                    <div class="col-sm-8">
+                        <input type="text" id="gst" name="gst" class="form-control">
+                    </div>
+                </div>
 
-			<div class="inner-wrapper">
-				<!-- start: sidebar -->
-				<?php include 'leftsidebar.php'; ?>
-				<!-- end: sidebar -->
+                <!-- Boards -->
+                <div class="form-group row pb-3">
+                    <label for="boards" class="col-sm-4 control-label text-sm-end pt-2">Boards:</label>
+                    <div class="col-sm-8">
+                        <select id="boards" name="boards" class="form-control" required>
+                            <option value="">Select boards</option>
+                            <option value="Combo">Combo</option>
+                            <option value="8/10 ASR Nagar">8/10 ASR Nagar</option>
+                            <option value="10/16 Bombay Sweets">10/16 Bombay Sweets</option>
+                        </select>
+                    </div>
+                </div>
 
-				<section role="main" class="content-body content-body-modern">
-					<header class="page-header page-header-left-inline-breadcrumb">
-						<h2 class="font-weight-bold text-6">Quotations</h2>
-						<div class="right-wrapper">
-							<ol class="breadcrumbs">
+                <!-- Duration -->
+                <div class="form-group row pb-3">
+                    <label for="duration" class="col-sm-4 control-label text-sm-end pt-2">Duration:</label>
+                    <div class="col-sm-8">
+                        <select id="duration" name="duration" class="form-control" required>
+                            <option value="">Select duration</option>
+                            <option value="20">20 seconds</option>
+                            <option value="30">30 seconds</option>
+                            <option value="50">50 seconds</option>
+                        </select>
+                    </div>
+                </div>
 
-								<li><span>Home</span></li>
+                <!-- Months -->
+                <div class="form-group row pb-3">
+                    <label for="months" class="col-sm-4 control-label text-sm-end pt-2">Months:</label>
+                    <div class="col-sm-8">
+                        <select id="months" name="months" class="form-control" required>
+                            <option value="1">1 month</option>
+                            <option value="3">3 months</option>
+                            <option value="6">6 months</option>
+                            <option value="12">12 months</option>
+                        </select>
+                    </div>
+                </div>
 
-								<li><span>Quotations</span></li>
+                <!-- Start Date -->
+                <div class="form-group row pb-3">
+                    <label for="start-date" class="col-sm-4 control-label text-sm-end pt-2">Start Date:</label>
+                    <div class="col-sm-8">
+                        <input type="date" id="start-date" name="start-date" class="form-control" required>
+                    </div>
+                </div>
 
-							</ol>
+                <!-- End Date -->
+                <div class="form-group row pb-3">
+                    <label for="end-date" class="col-sm-4 control-label text-sm-end pt-2">End Date:</label>
+                    <div class="col-sm-8">
+                        <input type="date" id="end-date" name="end-date" class="form-control" readonly>
+                    </div>
+                </div>
 
-							<a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
-						</div>
-					</header>
+                <!-- Cycles -->
+                <div class="form-group row pb-3">
+                    <label for="cycles" class="col-sm-4 control-label text-sm-end pt-2">Cycles:</label>
+                    <div class="col-sm-8">
+                        <select id="cycles" name="cycles" class="form-control" required>
+                            <option value="50">50 cycles</option>
+                            <option value="100">100 cycles</option>
+                        </select>
+                    </div>
+                </div>
 
-					<!-- start: page -->
-					 <div class= "row">
-					 <form id="quotation-form" action="process_form.php" method="POST">
-              <div class="form-group">
-                <label for="name">Name</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Enter recipient name" required>
-              </div>
-              <div class="form-group">
-                <label for="gst">GST</label>
-                <input type="text" id="gst" name="gst" class="form-control" placeholder="Enter GST type">
-              </div>
-              <div class="form-group">
-                <label for="start-date">Start Date:</label>
-                <input type="date" id="start-date" name="start-date" class="form-control" required>
-              </div>
-              <div class="form-group">
-                <label for="boards">Boards:</label>
-                <select id="boards" name="boards" class="form-control" required>
-                  <option value="">Select boards</option>
-                  <option value="Combo">Combo</option>
-                  <option value="8/10 ASR Nagar">8/10 ASR Nagar</option>
-                  <option value="10/16 Bombay Sweets">10/16 Bombay Sweets</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="duration">Duration (in seconds):</label>
-                <select id="duration" name="duration" class="form-control" required>
-                  <option value="">Select duration</option>
-                  <option value="20">20 seconds</option>
-                  <option value="30">30 seconds</option>
-                  <option value="50">50 seconds</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="months">Months:</label>
-                <select id="months" name="months" class="form-control" required>
-                  <option value="">Select months</option>
-                  <option value="1">1 month</option>
-                  <option value="3">3 months</option>
-                  <option value="6">6 months</option>
-                  <option value="12">12 months</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="end-date">End Date:</label>
-                <input type="date" id="end-date" name="end-date" class="form-control" readonly>
-              </div>
-              <div class="form-group">
-                <label for="cycles">Cycles:</label>
-                <select id="cycles" name="cycles" class="form-control" required>
-                  <option value="50">50 Cycles</option>
-                  <option value="100">100 Cycles</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <div class="output" id="total-output">Total Money: ₹0</div>
-              </div>
-              <div class="form-group">
-                <button type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            </form> 
+<!-- Total Output -->
+<div class="form-group row pb-3">
+    <label class="col-sm-4 control-label text-sm-end pt-2">Total:</label>
+    <div class="col-sm-8">
+        <div id="total-output" class="form-control-static">Total Money: ₹0</div>
+        <input type="hidden" id="total-price" name="total-price" value="0">
+    </div>
 </div>
-					
-					<!-- end: page -->
-				</section>
-			</div>
 
-			<?php include 'rightsidebar.php'; ?>
-		</section>
+            </div>
 
-		<!-- Vendor -->
-		<script src="vendor/jquery/jquery.js"></script>
-		<script src="vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
-		<script src="vendor/popper/umd/popper.min.js"></script>
-		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-		<script src="vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-		<script src="vendor/common/common.js"></script>
-		<script src="vendor/nanoscroller/nanoscroller.js"></script>
-		<script src="vendor/magnific-popup/jquery.magnific-popup.js"></script>
-		<script src="vendor/jquery-placeholder/jquery.placeholder.js"></script>
+            <footer class="card-footer text-end">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="reset" class="btn btn-default">Reset</button>
+            </footer>
+        </section>
+    </form>
+</div>
 
-		<!-- Specific Page Vendor -->
-		<script src="vendor/raphael/raphael.js"></script>
-		<script src="vendor/morris/morris.js"></script>
-		<script src="vendor/datatables/media/js/jquery.dataTables.min.js"></script>
-		<script src="vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
+                </div>
+            </section>
+        </div>
+        <?php include 'rightsidebar.php'; ?>
+    </section>
 
-		<!-- Theme Base, Components and Settings -->
-		<script src="js/theme.js"></script>
-
-		<!-- Theme Custom -->
-		<script src="js/custom.js"></script>
-
-		<!-- Theme Initialization Files -->
-		<script src="js/theme.init.js"></script>
-
-		<!-- Examples -->
-		<script src="js/examples/examples.header.menu.js"></script>
-		<script src="js/examples/examples.ecommerce.dashboard.js"></script>
-		<script src="js/examples/examples.ecommerce.datatables.list.js"></script>
-
-	</body>
+    <script src="vendor/jquery/jquery.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="js/theme.js"></script>
+</body>
 </html>
