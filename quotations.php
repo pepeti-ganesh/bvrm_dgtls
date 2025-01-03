@@ -1,17 +1,6 @@
 <?php
-// Database connection parameters
-$host = 'localhost';
-$dbname = 'digital_boards';
-$username = 'root';
-$password = '';
-
-// Create a PDO instance for MySQL
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
+// Include the database connection file
+include 'connect.php';
 
 // Handle form submission
 $submissionSuccess = false; // Flag to track successful submission
@@ -51,8 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Explicitly release resources
     $stmt = null;
 }
-
 ?>
+
 
 <!doctype html>
 <html class="modern fixed has-top-menu has-left-sidebar-half">
