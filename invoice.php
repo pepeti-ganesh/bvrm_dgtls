@@ -42,6 +42,87 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
 </head>
 <body>
+<script>
+function generateInvoice(rowData) {
+    // Parse the row data (already passed as JSON from PHP)
+    const data = rowData;
+
+    // Create a new window or tab for the invoice
+    const invoiceWindow = window.open('', '_blank', 'width=800,height=600');
+
+    // HTML template for the invoice
+    const invoiceHTML = `
+        <html>
+        <head>
+            <title>Invoice</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                .invoice-header { text-align: center; margin-bottom: 20px; }
+                .invoice-table { width: 100%; border-collapse: collapse; }
+                .invoice-table th, .invoice-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                .invoice-table th { background-color: #f4f4f4; }
+                .total { font-weight: bold; text-align: right; }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-header">
+                <h1>Invoice</h1>
+                <p>Date: ${new Date().toLocaleDateString()}</p>
+            </div>
+            <table class="invoice-table">
+                <tr>
+                    <th>ID</th>
+                    <td>${data.id}</td>
+                </tr>
+                <tr>
+                    <th>Name</th>
+                    <td>${data.name}</td>
+                </tr>
+                <tr>
+                    <th>GST</th>
+                    <td>${data.gst}</td>
+                </tr>
+                <tr>
+                    <th>Boards</th>
+                    <td>${data.boards}</td>
+                </tr>
+                <tr>
+                    <th>Duration</th>
+                    <td>${data.duration}</td>
+                </tr>
+                <tr>
+                    <th>Months</th>
+                    <td>${data.months}</td>
+                </tr>
+                <tr>
+                    <th>Start Date</th>
+                    <td>${data.start_date}</td>
+                </tr>
+                <tr>
+                    <th>End Date</th>
+                    <td>${data.end_date}</td>
+                </tr>
+                <tr>
+                    <th>Cycles</th>
+                    <td>${data.cycles}</td>
+                </tr>
+                <tr>
+                    <th>Total Price (₹)</th>
+                    <td class="total">₹${data.total_price}</td>
+                </tr>
+            </table>
+            <button onclick="window.print()">Print Invoice</button>
+        </body>
+        </html>
+    `;
+
+    // Write the invoice HTML to the new window
+    invoiceWindow.document.open();
+    invoiceWindow.document.write(invoiceHTML);
+    invoiceWindow.document.close();
+}
+</script>
+
     <div class="container mt-5">
         <h2 class="mb-4">Adds Data</h2>
         <table class="table table-bordered table-striped">
@@ -57,49 +138,54 @@
                     <th>End Date</th>
                     <th>Cycles</th>
                     <th>Total Price (₹)</th>
+                    <th>Generate Invoice</th>
                 </tr>
             </thead>
             <tbody>
-                <?php
-                // Database connection parameters
-                $host = 'localhost';
-                $dbname = 'digital_boards';
-                $username = 'root';
-                $password = '';
+            <?php
+// Database connection parameters
+$host = 'localhost';
+$dbname = 'digital_boards';
+$username = 'root';
+$password = '';
 
-                try {
-                    // Connect to the database
-                    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+try {
+    // Connect to the database
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-                    // Query to fetch data
-                    $sql = "SELECT * FROM adds";
-                    $stmt = $pdo->query($sql);
+    // Query to fetch data
+    $sql = "SELECT * FROM adds";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
 
-                    // Check if there are any rows returned
-                    if ($stmt->rowCount() > 0) {
-                        // Loop through and display each row
-                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                            echo "<tr>";
-                            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['gst']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['boards']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['duration']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['months']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['start_date']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['end_date']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['cycles']) . "</td>";
-                            echo "<td>₹" . htmlspecialchars($row['total_price']) . "</td>";
-                            echo "</tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='10' class='text-center'>No data found</td></tr>";
-                    }
-                } catch (PDOException $e) {
-                    echo "<tr><td colspan='10' class='text-danger'>Error: " . $e->getMessage() . "</td></tr>";
-                }
-                ?>
+    // Display table rows
+    if ($stmt->rowCount() > 0) {
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['gst']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['boards']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['duration']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['months']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['start_date']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['end_date']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['cycles']) . "</td>";
+            echo "<td>₹" . htmlspecialchars($row['total_price']) . "</td>";
+            echo "<td><button class='btn btn-primary' onclick=\"location.href='print.php?id=" . htmlspecialchars($row['id']) . "'\">Print</button></td>";
+                echo "</tr>";
+        }
+    } else {
+        echo "<tr><td colspan='11' class='text-center'>No data found</td></tr>";
+    }
+    
+} catch (PDOException $e) {
+    error_log("Database Error: " . $e->getMessage()); // Log error securely
+    echo "<tr><td colspan='11' class='text-danger'>An error occurred. Please try again later.</td></tr>";
+}
+?>
+
             </tbody>
         </table>
     </div>
