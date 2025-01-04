@@ -119,10 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
               <div class="form-group">
                 <label for="amount">Amount:</label>
-                <input type="text" id="amount" name="amount" class="form-control" placeholder="Enter Amount Paid" required>
+                <input type="text" id="amount" name="amount" class="form-control" placeholder="Enter Amount Paid">
               </div>
               <div class="form-group">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary" href="expense_table.php">Submit</button>
               </div>
             </form>
             <?php if (!empty($message)) echo $message; ?>
