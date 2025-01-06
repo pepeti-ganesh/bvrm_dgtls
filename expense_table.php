@@ -18,13 +18,13 @@
 
 				<section role="main" class="content-body content-body-modern">
 					<header class="page-header page-header-left-inline-breadcrumb">
-						<h2 class="font-weight-bold text-6">Invoices</h2>
+						<h2 class="font-weight-bold text-6">Expenses</h2>
 						<div class="right-wrapper">
 							<ol class="breadcrumbs">
 
 								<li><span>Home</span></li>
 
-								<li><span>Invoices</span></li>
+								<li><span>Expenses</span></li>
 
 							</ol>
 
@@ -46,8 +46,8 @@
             
     <div class="container mt-5">
         <div class="form-group">
-                <button type="submit" class="btn btn-primary" href="expense_table.php">ADD</button>
-              </div>
+            <a type="submit" class="btn btn-primary" href="expenses.php">ADD</a>
+        </div>
         <h2 class="mb-4">Expenses</h2>
         <table class="table table-bordered table-striped">
             <thead class="table-dark">

@@ -115,14 +115,14 @@ document.addEventListener("DOMContentLoaded", () => {
               </div>
               <div class="form-group">
                 <label for="bill">Upload Bill</label>
-                <input type="file" id="bill" name="bill" class="form-control" accept="application/pdf/image" required>
+                <input type="file" id="bill" name="bill" class="form-control" accept="application/pdf/image" >
               </div>
               <div class="form-group">
                 <label for="amount">Amount:</label>
-                <input type="text" id="amount" name="amount" class="form-control" placeholder="Enter Amount Paid">
+                <input type="text" id="amount" name="amount" class="form-control" placeholder="Enter Amount Paid" required>
               </div>
               <div class="form-group">
-                <button type="submit" class="btn btn-primary" href="expense_table.php">Submit</button>
+                <button  type="submit" class="btn btn-primary" href="expense_table.php">Submit</button>
               </div>
             </form>
             <?php if (!empty($message)) echo $message; ?>
