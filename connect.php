@@ -10,6 +10,27 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+    // Count the total number of orders (count of IDs)
+    $sql = "SELECT COUNT(id) AS total_orders FROM adds";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $totalOrders = $result['total_orders'] ?? 0; // Default to 0 if no records found
+
+    // Calculate the total of total_price
+    $sql = "SELECT SUM(total_price) AS total_price_sum FROM adds";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $totalPriceSum = $result['total_price_sum'] ?? 0; // Default to 0 if no records found
+
+    // Calculate the average of total_price
+    $sql = "SELECT AVG(total_price) AS average_price FROM adds";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $averagePrice = $result['average_price'] ?? 0; // Default to 0 if no records found
+
     // Check if ID is passed via GET
     if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         $id = intval($_GET['id']); // Sanitize the ID input

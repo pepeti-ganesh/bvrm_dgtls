@@ -51,10 +51,14 @@
 												</div>
 												<div class="widget-user-info-body">
 													<div class="row">
-														<div class="col-auto">
-															<strong class="text-color-dark text-5">₹19.876,02</strong>
-															<h3 class="text-4-1">Total Market</h3>
-														</div>
+													<div class="col-auto">
+													<?php include 'connect.php'; ?>
+
+    <strong class="text-color-dark text-5">₹<?php echo number_format($totalPriceSum, 2); ?></strong>
+    <h3 class="text-4-1">Total Market</h3>
+</div>
+
+
 														<div class="col-auto">
 															<strong class="text-color-dark text-5">637</strong>
 															<h3 class="text-4-1">Total Clients</h3>
@@ -76,10 +80,17 @@
 									<div class="card card-modern">
 										<div class="card-body py-4">
 											<div class="row align-items-center">
-												<div class="col-6 col-md-4">
-													<h3 class="text-4-1 my-0">Total Orders</h3>
-													<strong class="text-6 text-color-dark">4825</strong>
-												</div>
+											<div class="col-6 col-md-4">
+											<?php
+                                              include 'connect.php';
+                                                 // Use $data (if ID is passed)
+                                                 if ($data !== null) {
+                                                 echo "<div>Invoice for: " . htmlspecialchars($data['name']) . "</div>";
+                                                 }
+                                            ?>
+											<h3 class="text-4-1 my-0">Total Orders</h3>
+											 <strong class="text-6 text-color-dark"><?php echo htmlspecialchars($totalOrders); ?></strong>
+											</div>
 												<div class="col-6 col-md-4 border border-top-0 border-end-0 border-bottom-0 border-color-light-grey py-3">
 													<h3 class="text-4-1 text-color-success line-height-2 my-0">Orders <strong>UP &uarr;</strong></h3>
 													<span>30 days</span>
@@ -95,10 +106,11 @@
 									<div class="card card-modern">
 										<div class="card-body py-4">
 											<div class="row align-items-center">
-												<div class="col-6 col-md-4">
-													<h3 class="text-4-1 my-0">Average Price</h3>
-													<strong class="text-6 text-color-dark">$39,03</strong>
-												</div>
+											<div class="col-6 col-md-4">
+                                                 <h3 class="text-4-1 my-0">Average Price</h3>
+                                                 <strong class="text-6 text-color-dark">₹<?php echo number_format($averagePrice, 2); ?></strong>
+                                            </div>
+
 												<div class="col-6 col-md-4 border border-top-0 border-end-0 border-bottom-0 border-color-light-grey py-3">
 													<h3 class="text-4-1 text-color-danger line-height-2 my-0">Price <strong>DOWN &darr;</strong></h3>
 													<span>30 days</span>
