@@ -100,8 +100,9 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+
+</body></html>
+
 
 					<!-- end: page -->
 				</section>
