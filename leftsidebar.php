@@ -11,6 +11,12 @@
 			<nav id="menu" class="nav-main" role="navigation">
 
 				<ul class="nav nav-main">
+				<li>
+						<a class="nav-link" href="index.php">
+							<i class="bx bx-bar-chart-alt" aria-hidden="true"></i>
+							<span>Dashboard</span>
+						</a>                        
+					</li>
 					<li>
 						<a class="nav-link" href="financial_dashboard.php">
 							<i class="bx bx-bar-chart-alt" aria-hidden="true"></i>
