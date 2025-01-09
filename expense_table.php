@@ -61,42 +61,13 @@
                 </tr>
             </thead>
             <tbody>
-                <?php
-                // Database connection parameters
-                $host = 'localhost';
-                $dbname = 'digital_boards';
-                $username = 'root';
-                $password = '';
+            <?php
+// Include the connect.php file
+include 'connect.php';
 
-                try {
-                    // Connect to the database
-                    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                    // Query to fetch data
-                    $sql = "SELECT * FROM expenses";
-                    $stmt = $pdo->query($sql);
-
-                    // Check if there are any rows returned
-                    if ($stmt->rowCount() > 0) {
-                        // Loop through and display each row
-                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                            echo "<tr>";
-                            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['title']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['date']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['bill']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['amount']) . "</td>";
-                            echo "</tr>";
-                        }
-                    } else {
-                        echo "<tr><td colspan='10' class='text-center'>No data found</td></tr>";
-                    }
-                } catch (PDOException $e) {
-                    echo "<tr><td colspan='10' class='text-danger'>Error: " . $e->getMessage() . "</td></tr>";
-                }
-                ?>
+// Fetch all expenses
+$expenses = fetchExpenses($pdo);
+?>
             </tbody>
         </table>
     </div>
