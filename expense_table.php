@@ -1,117 +1,123 @@
+<?php
+// Include the backend logic
+include 'expenses_form.php';
+?>
+
 <!doctype html>
 <html class="modern fixed has-top-menu has-left-sidebar-half">
-	<head>
-    <?php include 'head.php'; ?>
-		
-	</head>
-	<body>
-		<section class="body">
-
-			<!-- start: header -->
-		<?php include 'header.php'; ?>
-			<!-- end: header -->
-
-			<div class="inner-wrapper">
-				<!-- start: sidebar -->
-				<?php include 'leftsidebar.php'; ?>
-				<!-- end: sidebar -->
-
-				<section role="main" class="content-body content-body-modern">
-					<header class="page-header page-header-left-inline-breadcrumb">
-						<h2 class="font-weight-bold text-6">Expenses</h2>
-						<div class="right-wrapper">
-							<ol class="breadcrumbs">
-
-								<li><span>Home</span></li>
-
-								<li><span>Expenses</span></li>
-
-							</ol>
-
-							<a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
-						</div>
-					</header>
-
-					<!-- start: page -->
-					<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Data</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <?php include 'head.php'; ?>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
+    <section class="body">
+        <?php include 'header.php'; ?>
+        <div class="inner-wrapper">
+            <?php include 'leftsidebar.php'; ?>
+            <section role="main" class="content-body content-body-modern">
+                <header class="page-header page-header-left-inline-breadcrumb">
+                    <h2 class="font-weight-bold text-6">Expenses</h2>
+                    <div class="right-wrapper">
+                        <ol class="breadcrumbs">
+                            <li><span>Home</span></li>
+                            <li><span>Expenses</span></li>
+                        </ol>
+                        <a class="sidebar-right-toggle" data-open="sidebar-right"><i class="fas fa-chevron-left"></i></a>
+                    </div>
+                </header>
 
-            
-    <div class="container mt-5">
-        <div class="form-group">
-            <a type="submit" class="btn btn-primary" href="expenses.php">ADD</a>
+                <!-- Add Expense Button -->
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#expenseModal">
+                        Add Expense
+                    </button>
+                </div>
+
+                <!-- Display Success Message -->
+                <?php if (isset($_GET['success']) && $_GET['success'] == 1): ?>
+                    <div class="alert alert-success">Expense recorded successfully!</div>
+                <?php endif; ?>
+
+                <!-- Expense Table -->
+                <div class="container mt-5">
+                    <h2 class="mb-4">Expenses</h2>
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Date</th>
+                                <th>Bill</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($expenses as $expense): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($expense['id']); ?></td>
+                                    <td><?php echo htmlspecialchars($expense['title']); ?></td>
+                                    <td><?php echo htmlspecialchars($expense['description']); ?></td>
+                                    <td><?php echo htmlspecialchars($expense['date']); ?></td>
+                                    <td>
+                                        <?php if (!empty($expense['bill_content'])): ?>
+                                            <a href="?download_id=<?php echo $expense['id']; ?>" class="btn btn-sm btn-primary">Download</a>
+                                        <?php else: ?>
+                                            No Bill
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($expense['amount']); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-        <h2 class="mb-4">Expenses</h2>
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Date</th>
-                    <th>Bill</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php
-// Include the connect.php file
-include 'connect.php';
+        <?php include 'rightsidebar.php'; ?>
+    </section>
 
-// Fetch all expenses
-$expenses = fetchExpenses($pdo);
-?>
-            </tbody>
-        </table>
+    <!-- Expense Modal -->
+    <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="expenseModalLabel">Add Expense</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expense-form" action="" method="POST" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="title">Expense Title:</label>
+                            <input type="text" id="title" name="title" class="form-control" placeholder="Enter Expense Title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <input type="text" id="description" name="description" class="form-control" placeholder="Enter Description">
+                        </div>
+                        <div class="form-group">
+                            <label for="date">Date:</label>
+                            <input type="date" id="date" name="date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bill">Upload Bill</label>
+                            <input type="file" id="bill" name="bill" class="form-control" accept="application/pdf,image/*">
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">Amount:</label>
+                            <input type="text" id="amount" name="amount" class="form-control" placeholder="Enter Amount Paid" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
-</body></html>
-
-
-					<!-- end: page -->
-				</section>
-			</div>
-
-			<?php include 'rightsidebar.php'; ?>
-		</section>
-
-		<!-- Vendor -->
-		<script src="vendor/jquery/jquery.js"></script>
-		<script src="vendor/jquery-browser-mobile/jquery.browser.mobile.js"></script>
-		<script src="vendor/popper/umd/popper.min.js"></script>
-		<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-		<script src="vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-		<script src="vendor/common/common.js"></script>
-		<script src="vendor/nanoscroller/nanoscroller.js"></script>
-		<script src="vendor/magnific-popup/jquery.magnific-popup.js"></script>
-		<script src="vendor/jquery-placeholder/jquery.placeholder.js"></script>
-
-		<!-- Specific Page Vendor -->
-		<script src="vendor/raphael/raphael.js"></script>
-		<script src="vendor/morris/morris.js"></script>
-		<script src="vendor/datatables/media/js/jquery.dataTables.min.js"></script>
-		<script src="vendor/datatables/media/js/dataTables.bootstrap5.min.js"></script>
-
-		<!-- Theme Base, Components and Settings -->
-		<script src="js/theme.js"></script>
-
-		<!-- Theme Custom -->
-		<script src="js/custom.js"></script>
-
-		<!-- Theme Initialization Files -->
-		<script src="js/theme.init.js"></script>
-
-		<!-- Examples -->
-		<script src="js/examples/examples.header.menu.js"></script>
-		<script src="js/examples/examples.ecommerce.dashboard.js"></script>
-		<script src="js/examples/examples.ecommerce.datatables.list.js"></script>
-
-	</body>
+    <!-- Vendor -->
+    
+    <?php include 'tags.php'; ?>
+</body>
 </html>

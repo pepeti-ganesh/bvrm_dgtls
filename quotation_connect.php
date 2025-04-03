@@ -10,7 +10,6 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-
     // Function to fetch a record from the 'adds' table by ID
     function getAddById($pdo, $id) {
         if (is_numeric($id)) {
@@ -35,6 +34,60 @@ try {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Function to fetch monthly expenses
+    function fetchMonthlyExpenses($pdo) {
+        $monthlyExpenses = [];
+        $sql = "SELECT DATE_FORMAT(date, '%Y-%m') AS month, SUM(amount) AS total_amount
+                FROM expenses
+                GROUP BY month
+                ORDER BY month";
+
+        try {
+            $stmt = $pdo->query($sql);
+            if ($stmt->rowCount() > 0) {
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $monthlyExpenses[$row['month']] = $row['total_amount'];
+                }
+            }
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+        }
+
+        return $monthlyExpenses;
+    }
+
+    // Function to fetch recent adds
+    function fetchRecentAdds($pdo, $limit = 10) {
+        $recentAdds = [];
+        $sql = "SELECT * FROM adds ORDER BY id DESC LIMIT :limit";
+
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            $recentAdds = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+        }
+
+        return $recentAdds;
+    }
+
+    // Function to insert a new quotation
+    function insertQuotation($pdo, $data) {
+        $sql = "INSERT INTO adds (name, gst, boards, duration, months, start_date, end_date, cycles, total_price)
+                VALUES (:name, :gst, :boards, :duration, :months, :start_date, :end_date, :cycles, :total_price)";
+
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($data);
+            return true;
+        } catch (PDOException $e) {
+            error_log("Database Error: " . $e->getMessage());
+            return false;
+        }
+    }
+
     // Function to generate table rows for expenses
     function generateExpenseTableRows($expenses) {
         if (!empty($expenses)) {
@@ -51,26 +104,7 @@ try {
         } else {
             echo "<tr><td colspan='10' class='text-center'>No data found</td></tr>";
         }
-    // Check if ID is passed via GET
-    if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-        $id = intval($_GET['id']); // Sanitize the ID input
-
-        // Fetch record by ID
-        $sql = "SELECT * FROM adds WHERE id = :id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-
-        // Check if a record is found
-        if ($stmt->rowCount() > 0) {
-            $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        } else {
-            die('Invoice not found for the given ID.');
-        }
-    } else {
-        $data = null; // Set data to null if no ID is passed
     }
-}
 } catch (PDOException $e) {
     die('Database Error: ' . $e->getMessage());
 }
