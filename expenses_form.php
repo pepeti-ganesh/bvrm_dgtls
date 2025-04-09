@@ -1,17 +1,6 @@
 <?php
 // Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "digital_boards";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include 'connect.php';
 
 // Initialize variables
 $message = "";
@@ -44,14 +33,17 @@ function handleFormSubmission($conn) {
             $stmt->bind_param("ssssss", $title, $description, $date, $billContent, $billType, $amount);
 
             if ($stmt->execute()) {
+                // Close the statement
+                $stmt->close();
+
                 // Redirect to prevent form resubmission
                 header("Location: " . $_SERVER['PHP_SELF'] . "?success=1");
                 exit;
             } else {
-                return "Error: " . $stmt->error;
+                $error = "Error: " . $stmt->error;
+                $stmt->close();
+                return $error;
             }
-
-            $stmt->close();
         } else {
             return "Invalid file type. Only PDF, JPG, PNG, JPEG, and GIF files are allowed.";
         }

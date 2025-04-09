@@ -29,123 +29,6 @@
 	$conn->close();
 	?>
 
-	<?php
-	include 'connect.php';
-
-	$orderCounts = [];
-	$sql = "SELECT DATE_FORMAT(start_date, '%b') AS month, COUNT(*) AS order_count
-        FROM adds
-        GROUP BY month
-        ORDER BY MONTH(STR_TO_DATE(month, '%b'))";
-
-	$result = $conn->query($sql);
-
-	if ($result->num_rows > 0) {
-		while ($row = $result->fetch_assoc()) {
-			$orderCounts[] = [
-				'y' => $row['month'],
-				'a' => $row['order_count']
-			];
-		}
-	}
-
-	$conn->close();
-	?>
-
-	<?php
-	include 'connect.php';
-
-	$salesData = [];
-	$sql = "SELECT DATE_FORMAT(start_date, '%b') AS month, SUM(total_price / months) AS monthly_amount
-        FROM adds
-        GROUP BY month
-        ORDER BY MONTH(STR_TO_DATE(month, '%b'))";
-
-	$result = $conn->query($sql);
-
-	if ($result->num_rows > 0) {
-		while ($row = $result->fetch_assoc()) {
-			$salesData[] = [
-				'month' => $row['month'],
-				'amount' => $row['monthly_amount']
-			];
-		}
-	}
-
-	$conn->close();
-	?>
-
-	<?php
-	include 'connect.php';
-
-	// Fetch sales data for each board
-	$salesData = [];
-	$sql = "SELECT DATE_FORMAT(start_date, '%b') AS month, SUM(total_price / months) AS monthly_amount, boards
-        FROM adds
-        GROUP BY boards, month
-        ORDER BY boards, MONTH(STR_TO_DATE(month, '%b'))";
-
-	$result = $conn->query($sql);
-
-	if ($result->num_rows > 0) {
-		while ($row = $result->fetch_assoc()) {
-			$board = $row['boards'];
-			$salesData[$board][] = [
-				'month' => $row['month'],
-				'amount' => $row['monthly_amount']
-			];
-		}
-	}
-
-	$conn->close();
-	?>
-
-	<?php
-	include 'connect.php';
-
-	// Fetch recent activity from the 'adds' table
-	$recentAdds = [];
-	$sqlAdds = "SELECT name, boards, start_date AS time FROM adds ORDER BY start_date DESC LIMIT 5";
-	$resultAdds = $conn->query($sqlAdds);
-
-	if ($resultAdds->num_rows > 0) {
-		while ($row = $resultAdds->fetch_assoc()) {
-			$recentAdds[] = [
-				'type' => 'add',
-				'name' => $row['name'] . " (adds)", // Append table name
-				'boards' => $row['boards'],
-				'time' => $row['time'],
-				'table' => 'adds'
-			];
-		}
-	}
-
-	// Fetch recent expenses from the 'expenses' table
-	$recentExpenses = [];
-	$sqlExpenses = "SELECT title, date AS time FROM expenses ORDER BY date DESC LIMIT 5";
-	$resultExpenses = $conn->query($sqlExpenses);
-
-	if ($resultExpenses->num_rows > 0) {
-		while ($row = $resultExpenses->fetch_assoc()) {
-			$recentExpenses[] = [
-				'type' => 'expense',
-				'name' => $row['title'] . " (expenses)", // Append table name
-				'time' => $row['time'],
-				'table' => 'expenses'
-			];
-		}
-	}
-
-	// Merge and sort activities by time (descending)
-	$recentActivities = array_merge($recentAdds, $recentExpenses);
-	usort($recentActivities, function ($a, $b) {
-		return strtotime($b['time']) - strtotime($a['time']);
-	});
-
-	// Limit to 5 activities
-	$recentActivities = array_slice($recentActivities, 0, 5);
-	?>
-
 	<section class="body">
 
 		<!-- start: header -->
@@ -213,23 +96,8 @@
 															class="text-color-dark text-5">₹<?php echo number_format($totalMarket, 2); ?></strong>
 														<h3 class="text-4-1">Total Market</h3>
 													</div>
-													<?php
-													// Include the database connection file
-													include 'connect.php';
-
-													// Fetch the total number of unique clients from the 'adds' table
-													$totalClients = 0;
-													$sql = "SELECT COUNT(DISTINCT name) AS total_clients FROM adds"; // Use DISTINCT to count unique names
-													$result = $conn->query($sql);
-
-													if ($result->num_rows > 0) {
-														$row = $result->fetch_assoc();
-														$totalClients = $row['total_clients'];
-													}
-													?>
 													<div class="col-auto">
-														<strong
-															class="text-color-dark text-5"><?php echo $totalClients; ?></strong>
+														<strong class="text-color-dark text-5">637</strong>
 														<h3 class="text-4-1">Total Clients</h3>
 													</div>
 												</div>
@@ -251,24 +119,9 @@
 								<div class="card card-modern">
 									<div class="card-body py-4">
 										<div class="row alizgn-items-center">
-											<?php
-											// Include the database connection file
-											include 'connect.php';
-
-											// Fetch the total number of orders from the 'adds' table
-											$totalOrders = 0;
-											$sql = "SELECT COUNT(*) AS total_orders FROM adds";
-											$result = $conn->query($sql);
-
-											if ($result->num_rows > 0) {
-												$row = $result->fetch_assoc();
-												$totalOrders = $row['total_orders'];
-											}
-											?>
 											<div class="col-6 col-md-4">
 												<h3 class="text-4-1 my-0">Total Orders</h3>
-												<strong
-													class="text-6 text-color-dark"><?php echo $totalOrders; ?></strong>
+												<strong class="text-6 text-color-dark">4825</strong>
 											</div>
 											<div
 												class="col-6 col-md-4 border border-top-0 border-end-0 border-bottom-0 border-color-light-grey py-3">
@@ -289,24 +142,9 @@
 								<div class="card card-modern">
 									<div class="card-body py-4">
 										<div class="row align-items-center">
-											<?php
-											// Include the database connection file
-											include 'connect.php';
-
-											// Fetch the average price from the 'adds' table
-											$averagePrice = 0;
-											$sql = "SELECT AVG(total_price) AS average_price FROM adds";
-											$result = $conn->query($sql);
-
-											if ($result->num_rows > 0) {
-												$row = $result->fetch_assoc();
-												$averagePrice = $row['average_price'];
-											}
-											?>
 											<div class="col-6 col-md-4">
 												<h3 class="text-4-1 my-0">Average Price</h3>
-												<strong
-													class="text-6 text-color-dark">₹<?php echo number_format($averagePrice, 2); ?></strong>
+												<strong class="text-6 text-color-dark">$39,03</strong>
 											</div>
 											<div
 												class="col-6 col-md-4 border border-top-0 border-end-0 border-bottom-0 border-color-light-grey py-3">
@@ -338,120 +176,75 @@
 									</div>
 									<div class="card-body">
 										<div class="row">
-
 											<div class="col-auto">
-												<strong class="text-color-dark text-6">
-													<?php
-													include 'connect.php';
-
-													// Initialize the total amount for the previous month
-													$previousMonthAmount = 0;
-
-													// Get the previous month and year
-													$previousMonth = date('Y-m', strtotime('first day of last month'));
-
-													// Fetch all records from the 'adds' table
-													$sql = "SELECT total_price, start_date, months FROM adds";
-													$result = $conn->query($sql);
-
-													if ($result->num_rows > 0) {
-														while ($row = $result->fetch_assoc()) {
-															$totalPrice = $row['total_price'];
-															$startDate = $row['start_date'];
-															$months = $row['months'];
-
-															// Calculate the monthly amount
-															$monthlyAmount = $totalPrice / $months;
-
-															// Generate the months covered by this record
-															$startDateTime = new DateTime($startDate);
-															for ($i = 0; $i < $months; $i++) {
-																$recordMonth = $startDateTime->format('Y-m');
-																if ($recordMonth === $previousMonth) {
-																	$previousMonthAmount += $monthlyAmount;
-																}
-																$startDateTime->modify('+1 month');
-															}
-														}
-													}
-
-													// Display the total amount for the previous month
-													echo "₹" . number_format($previousMonthAmount, 2);
-													?>
-												</strong>
+												<strong class="text-color-dark text-6">$19.876,02</strong>
+												<h3 class="text-4 mt-0 mb-2">This Month</h3>
+											</div>
+											<div class="col-auto">
+												<strong class="text-color-dark text-6">$14.345,26</strong>
 												<h3 class="text-4 mt-0 mb-2">Last Month</h3>
 											</div>
-
 											<div class="col-auto">
-												<strong class="text-color-dark text-6">
-													<?php
-													include 'connect.php';
-
-													// Initialize the total amount for the current month
-													$currentMonthAmount = 0;
-
-													// Get the current month and year
-													$currentMonth = date('Y-m');
-
-													// Fetch all records from the 'adds' table
-													$sql = "SELECT total_price, start_date, months FROM adds";
-													$result = $conn->query($sql);
-
-													if ($result->num_rows > 0) {
-														while ($row = $result->fetch_assoc()) {
-															$totalPrice = $row['total_price'];
-															$startDate = $row['start_date'];
-															$months = $row['months'];
-
-															// Calculate the monthly amount
-															$monthlyAmount = $totalPrice / $months;
-
-															// Generate the months covered by this record
-															$startDateTime = new DateTime($startDate);
-															for ($i = 0; $i < $months; $i++) {
-																$recordMonth = $startDateTime->format('Y-m');
-																if ($recordMonth === $currentMonth) {
-																	$currentMonthAmount += $monthlyAmount;
-																}
-																$startDateTime->modify('+1 month');
-															}
-														}
-													}
-
-													// Display the total amount for the current month
-													echo "₹" . number_format($currentMonthAmount, 2);
-													?>
-												</strong>
-												<h3 class="text-4 mt-0 mb-2">This Month</h3>
+												<strong class="text-color-dark text-6">$119.876,02</strong>
+												<h3 class="text-4 mt-0 mb-2">Total Profit</h3>
 											</div>
 										</div>
 										<div class="row">
 											<div class="col">
-												<div class="col">
-													<!-- Morris: Area -->
-													<div class="chart chart-md chart-bar-stacked-sm my-3"
-														id="revenueChart" style="height: 409px;"></div>
-													<script type="text/javascript">
-														var revenueChartData = <?php echo json_encode($orderCounts); ?>;
 
-														if ($('#revenueChart').get(0)) {
-															Morris.Bar({
-																resize: true,
-																element: 'revenueChart',
-																data: revenueChartData,
-																xkey: 'y',
-																ykeys: ['a'],
-																labels: ['Orders'],
-																barColors: ['#0088cc'],
-																fillOpacity: 0.7,
-																smooth: false,
-																stacked: true,
-																hideHover: true,
-																grid: false
-															});
-														}
-													</script>
-												</div>
+												<!-- Morris: Area -->
+												<div class="chart chart-md chart-bar-stacked-sm my-3" id="revenueChart"
+													style="height: 409px;"></div>
+												<script type="text/javascript">
+
+													var revenueChartData = [{
+														y: 'Jan',
+														a: 56
+														
+													}, {
+														y: 'Feb',
+														a: 76
+													}, {
+														y: 'Mar',
+														a: 65
+													}, {
+														y: 'Apr',
+														a: 80
+													}, {
+														y: 'May',
+														a: 55
+													}, {
+														y: 'Jun',
+														a: 75
+													}, {
+														y: 'Jul',
+														a: 79
+														
+													}, {
+														y: 'Aug',
+														a: 54
+														
+													}, {
+														y: 'Sep',
+														a: 78
+														
+													}, {
+														y: 'Oct',
+														a: 35
+														
+													}, {
+														y: 'Nov',
+														a: 35
+													}, {
+														y: 'Dec',
+														a: 72
+														
+													}];
+
+													// See: js/examples/examples.charts.js for more settings.
+
+												</script>
+
 											</div>
 										</div>
 									</div>
@@ -467,23 +260,7 @@
 								<div class="row align-items-center">
 									<div class="col-6 col-md-4">
 										<h3 class="text-4-1 my-0">Total Customers</h3>
-										<strong class="text-6 text-color-dark">
-											<?php
-											include 'connect.php';
-
-											// Fetch the total number of unique names from the 'adds' table
-											$totalCustomers = 0;
-											$sql = "SELECT COUNT(DISTINCT name) AS total_customers FROM adds";
-											$result = $conn->query($sql);
-
-											if ($result->num_rows > 0) {
-												$row = $result->fetch_assoc();
-												$totalCustomers = $row['total_customers'];
-											}
-
-											echo $totalCustomers;
-											?>
-										</strong>
+										<strong class="text-6 text-color-dark">3872</strong>
 									</div>
 									<div
 										class="col-6 col-md-4 border border-top-0 border-end-0 border-bottom-0 border-color-light-grey py-3">
@@ -507,22 +284,48 @@
 							</div>
 							<div class="card-body">
 								<ul class="list list-unstyled mb-0">
-									<?php foreach ($recentActivities as $activity): ?>
-										<li class="activity-item">
-											<span class="activity-time"><?php echo date('M d, Y H:i', strtotime($activity['time'])); ?></span>
-											<i class="fas fa-chevron-right text-color-primary"></i>
-											<span class="activity-description">
-												<?php if ($activity['type'] === 'add'): ?>
-													<a href="#" class="text-color-dark"><strong><?php echo htmlspecialchars($activity['name']); ?></strong></a>
-													added <a href="#" class="text-color-dark"><strong><?php echo htmlspecialchars($activity['boards']); ?></strong></a>
-													to the <strong><?php echo htmlspecialchars($activity['table']); ?></strong> table.
-												<?php elseif ($activity['type'] === 'expense'): ?>
-													Expense recorded: <a href="#" class="text-color-dark"><strong><?php echo htmlspecialchars($activity['title']); ?></strong></a>
-													in the <strong><?php echo htmlspecialchars($activity['table']); ?></strong> table.
-												<?php endif; ?>
-											</span>
-										</li>
-									<?php endforeach; ?>
+									<li class="activity-item">
+										<span class="activity-time">1 MIN AGO</span> <i
+											class="fas fa-chevron-right text-color-primary"></i>
+										<span class="activity-description">
+											<a href="#" class="text-color-dark"><strong>John Doe</strong></a> Added <a
+												href="#" class="text-color-dark"><strong>Black Watch</strong></a> to
+											Cart.
+										</span>
+									</li>
+									<li class="activity-item">
+										<span class="activity-time">2 MIN AGO</span> <i
+											class="fas fa-chevron-right text-color-primary"></i>
+										<span class="activity-description">
+											<a href="#" class="text-color-dark"><strong>Order #123</strong></a> had
+											payment refused.
+										</span>
+									</li>
+									<li class="activity-item">
+										<span class="activity-time">3 MIN AGO</span> <i
+											class="fas fa-chevron-right text-color-primary"></i>
+										<span class="activity-description">
+											<a href="#" class="text-color-dark"><strong>Greg Doe</strong></a> added <a
+												href="#" class="text-color-dark"><strong>Porto SmartWatch</strong></a>
+											to Cart.
+										</span>
+									</li>
+									<li class="activity-item">
+										<span class="activity-time">4 MIN AGO</span> <i
+											class="fas fa-chevron-right text-color-primary"></i>
+										<span class="activity-description">
+											<a href="#" class="text-color-dark"><strong>Order #231</strong></a> had
+											payment refused.
+										</span>
+									</li>
+									<li class="activity-item">
+										<span class="activity-time">5 MIN AGO</span> <i
+											class="fas fa-chevron-right text-color-primary"></i>
+										<span class="activity-description">
+											<a href="#" class="text-color-dark"><strong>Monica Doe</strong></a> added <a
+												href="#" class="text-color-dark"><strong>Porto Bag</strong></a> to Cart.
+										</span>
+									</li>
 								</ul>
 
 								<a href="#"
@@ -544,67 +347,48 @@
 									<table class="table table-ecommerce-simple table-borderless table-striped mb-1">
 										<thead>
 											<tr>
-												<th>Client Name</th>
-												<th>Boards</th>
-												<th>Amount (₹)</th>
+												<th></th>
+												<th>Product Name</th>
+												<th>Price</th>
 											</tr>
 										</thead>
 										<tbody>
-											<?php
-											include 'connect.php';
-
-											// Get the current month and year
-											$currentMonth = date('Y-m');
-
-											// Fetch the top 5 clients based on the amount for the current month
-											$sql = "SELECT name, boards, (total_price / months) AS monthly_amount, start_date, months
-                            FROM adds";
-											$result = $conn->query($sql);
-
-											$clients = [];
-
-											if ($result->num_rows > 0) {
-												while ($row = $result->fetch_assoc()) {
-													$startDate = $row['start_date'];
-													$months = $row['months'];
-													$monthlyAmount = $row['monthly_amount'];
-													$startDateTime = new DateTime($startDate);
-
-													// Check if the current month is within the range of the record
-													for ($i = 0; $i < $months; $i++) {
-														$recordMonth = $startDateTime->format('Y-m');
-														if ($recordMonth === $currentMonth) {
-															$clients[] = [
-																'name' => $row['name'],
-																'boards' => $row['boards'],
-																'monthly_amount' => $monthlyAmount
-															];
-															break;
-														}
-														$startDateTime->modify('+1 month');
-													}
-												}
-											}
-
-											// Sort clients by monthly amount in descending order
-											usort($clients, function ($a, $b) {
-												return $b['monthly_amount'] <=> $a['monthly_amount'];
-											});
-
-											// Display the top 5 clients
-											$topClients = array_slice($clients, 0, 5);
-											foreach ($topClients as $client) {
-												echo "<tr>";
-												echo "<td>" . htmlspecialchars($client['name']) . "</td>";
-												echo "<td>" . htmlspecialchars($client['boards']) . "</td>";
-												echo "<td>₹" . number_format($client['monthly_amount'], 2) . "</td>";
-												echo "</tr>";
-											}
-
-											if (empty($topClients)) {
-												echo "<tr><td colspan='3' class='text-center'>No data found</td></tr>";
-											}
-											?>
+											<tr>
+												<td width="72"><a href="#"><img src="img/products/product-1.jpg"
+															class="img-fluid" width="45" alt="Porto SmartWatch" /></a>
+												</td>
+												<td><a href="#" class="font-weight-semibold">Product Short Name
+														Example</a></td>
+												<td width="90">$15</td>
+											</tr>
+											<tr>
+												<td><a href="#"><img src="img/products/product-2.jpg" class="img-fluid"
+															width="45" alt="Porto SmartWatch" /></a></td>
+												<td><a href="#" class="font-weight-semibold">Product Short Name
+														Example</a></td>
+												<td>$15</td>
+											</tr>
+											<tr>
+												<td><a href="#"><img src="img/products/product-3.jpg" class="img-fluid"
+															width="45" alt="Porto SmartWatch" /></a></td>
+												<td><a href="#" class="font-weight-semibold">Product Short Name
+														Example</a></td>
+												<td>$15</td>
+											</tr>
+											<tr>
+												<td><a href="#"><img src="img/products/product-4.jpg" class="img-fluid"
+															width="45" alt="Porto SmartWatch" /></a></td>
+												<td><a href="#" class="font-weight-semibold">Product Short Name
+														Example</a></td>
+												<td>$15</td>
+											</tr>
+											<tr>
+												<td><a href="#"><img src="img/products/product-5.jpg" class="img-fluid"
+															width="45" alt="Porto SmartWatch" /></a></td>
+												<td><a href="#" class="font-weight-semibold">Product Short Name
+														Example</a></td>
+												<td>$15</td>
+											</tr>
 										</tbody>
 									</table>
 								</div>
@@ -684,25 +468,25 @@
 																	Sales:
 																	<strong>
 																		<select class="form-control" id="salesSelector">
-																			<option value="Combo" selected>Combo
+																			<option value="Porto Admin" selected>Porto
+																				Admin</option>
+																			<option value="Porto Drupal">Porto Drupal
 																			</option>
-																			<option value="8/10 ASR Nagar">8/10 ASR
-																				Nagar</option>
-																			<option value="10/16 Bombay Sweets">10/16
-																				Bombay Sweets</option>
+																			<option value="Porto Wordpress">Porto
+																				Wordpress</option>
 																		</select>
-
 																	</strong>
 																</h2>
 
 																<div id="salesSelectorItems"
 																	class="chart-data-selector-items mt-3">
-																	<!-- Flot: Sales Combo -->
-																	<div class="chart chart-sm chart-active"
-																		data-sales-rel="Combo" id="flotDashSales1"
-																		style="height: 203px;">
+																	<!-- Flot: Sales Porto Admin -->
+																	<div class="chart chart-sm"
+																		data-sales-rel="Porto Admin" id="flotDashSales1"
+																		class="chart-active" style="height: 203px;">
 																	</div>
 																	<script>
+
 																		var flotDashSales1Data = [{
 																			data: [
 																				["Jan", 140],
@@ -716,14 +500,17 @@
 																			],
 																			color: "#0088cc"
 																		}];
+
+																		// See: js/examples/examples.dashboard.js for more settings.
+
 																	</script>
 
-																	<!-- Flot: Sales 8/10 ASR Nagar -->
-																	<div class="chart chart-sm chart-hidden"
-																		data-sales-rel="8/10 ASR Nagar"
-																		id="flotDashSales2">
-																	</div>
+																	<!-- Flot: Sales Porto Drupal -->
+																	<div class="chart chart-sm"
+																		data-sales-rel="Porto Drupal"
+																		id="flotDashSales2" class="chart-hidden"></div>
 																	<script>
+
 																		var flotDashSales2Data = [{
 																			data: [
 																				["Jan", 240],
@@ -737,14 +524,17 @@
 																			],
 																			color: "#2baab1"
 																		}];
+
+																		// See: js/examples/examples.dashboard.js for more settings.
+
 																	</script>
 
-																	<!-- Flot: Sales 10/16 Bombay Sweets -->
-																	<div class="chart chart-sm chart-hidden"
-																		data-sales-rel="10/16 Bombay Sweets"
-																		id="flotDashSales3">
-																	</div>
+																	<!-- Flot: Sales Porto Wordpress -->
+																	<div class="chart chart-sm"
+																		data-sales-rel="Porto Wordpress"
+																		id="flotDashSales3" class="chart-hidden"></div>
 																	<script>
+
 																		var flotDashSales3Data = [{
 																			data: [
 																				["Jan", 840],
@@ -758,9 +548,11 @@
 																			],
 																			color: "#734ba9"
 																		}];
+
+																		// See: js/examples/examples.dashboard.js for more settings.
+
 																	</script>
 																</div>
-
 
 															</div>
 														</div>
@@ -992,44 +784,9 @@
 		});
 	</script>
 
-	<script>
-    // PHP data passed to JavaScript
-    var salesData = <?php echo json_encode($salesData); ?>;
 
-    // Prepare data for each board
-    var flotDashSalesData = {};
-    for (var board in salesData) {
-        flotDashSalesData[board] = [{
-            data: salesData[board].map(item => [item.month, item.amount]),
-            color: board === "Combo" ? "#0088cc" : board === "8/10 ASR Nagar" ? "#2baab1" : "#734ba9"
-        }];
-    }
 
-    // Initialize Flot charts
-    $(function () {
-        $('#salesSelector').on('change', function () {
-            var selectedBoard = $(this).val();
-            $('.chart').addClass('chart-hidden').removeClass('chart-active');
-            $('#flotDashSales' + selectedBoard.replace(/[^a-zA-Z0-9]/g, '')).removeClass('chart-hidden').addClass('chart-active');
 
-            // Render the chart
-            $.plot('#flotDashSales' + selectedBoard.replace(/[^a-zA-Z0-9]/g, ''), flotDashSalesData[selectedBoard], {
-                series: {
-                    lines: { show: true },
-                    points: { show: true }
-                },
-                grid: {
-                    hoverable: true,
-                    clickable: true
-                },
-                xaxis: {
-                    mode: "categories",
-                    tickLength: 0
-                }
-            });
-        }).trigger('change');
-    });
-</script>
 
 	<?php include 'tags.php'; ?>
 </body>

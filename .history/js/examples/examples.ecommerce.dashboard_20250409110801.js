@@ -18,7 +18,7 @@ Theme Version: 	4.3.0
 			data: revenueChartData,
 			xkey: 'y',
 			ykeys: ['a'],
-			labels: ['ORDERS'],
+			labels: ['Series A'],
 			barColors: ['#0088cc', '#2baab1'],
 			fillOpacity: 0.7,
 			smooth: false,

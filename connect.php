@@ -1,0 +1,23 @@
+<?php
+// Database connection using MySQLi
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "digital_boards";
+
+// MySQLi connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check MySQLi connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Database connection using PDO
+try {
+    $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("PDO Connection failed: " . $e->getMessage());
+}
+?>

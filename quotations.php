@@ -1,6 +1,7 @@
 <?php
 // Include the database connection file
 include 'quotation_connect.php';
+include 'connect.php';
 
 // Handle form submission
 $submissionSuccess = false; // Flag to track successful submission

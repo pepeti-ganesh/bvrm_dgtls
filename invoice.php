@@ -62,13 +62,12 @@
                             include 'quotation_connect.php';
 
                             try {
-                                // Fetch all rows from the database
+                                // Fetch all rows from the database using MySQLi
                                 $sql = "SELECT * FROM adds";
-                                $stmt = $pdo->prepare($sql);
-                                $stmt->execute();
+                                $result = $conn->query($sql);
 
-                                if ($stmt->rowCount() > 0) {
-                                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
                                         echo "<tr>";
                                         echo "<td>" . htmlspecialchars($row['id']) . "</td>";
                                         echo "<td>" . htmlspecialchars($row['name']) . "</td>";
@@ -86,7 +85,7 @@
                                 } else {
                                     echo "<tr><td colspan='11' class='text-center'>No data found</td></tr>";
                                 }
-                            } catch (PDOException $e) {
+                            } catch (Exception $e) {
                                 error_log("Database Error: " . $e->getMessage());
                                 echo "<tr><td colspan='11' class='text-danger'>An error occurred. Please try again later.</td></tr>";
                             }
